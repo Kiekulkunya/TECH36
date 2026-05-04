@@ -1,0 +1,142 @@
+🔍 Prompt 1 — Data Profiling (Your Foundation)
+I have a retail user behavior dataset with 108,584 rows and 18 columns. 
+Here's the schema:
+
+- session_id, user_id: identifiers
+- timestamp_utc: event datetime (ISO format)
+- event_index: step number within a session
+- user_action: one of [view, click, wishlist, add_to_cart, purchase, drop]
+- product_id, category (8 types), brand (33 brands)
+- price: float, range $7–$500
+- channel: mobile / web / app
+- device_type: desktop / tablet / android / ios
+- region: 9 countries (US, UK, JP, IN, AU, CA, BR, DE, FR)
+- traffic_source: organic / direct / paid_search / social / email / affiliate / referral
+- time_spent_sec, session_length, interaction_count: behavioral metrics
+- is_conversion: binary (3.87% conversion rate)
+- drop_off_flag: binary (12.7% drop-off rate)
+
+The data tracks a user's journey through a retail site — each row is one event in a session.
+
+Describe the analytical story hidden in this data. What are the 5 most interesting questions 
+this dataset can answer for a business? What should I visualize first?
+
+🏗️ Prompt 2 — The Main Dashboard Build
+Build a polished, dark-themed admin dashboard in a single HTML file using D3.js and vanilla JS 
+for this retail behavior dataset (108k rows, provided as inline JSON aggregates — do not load 
+the raw CSV).
+
+The dashboard must include:
+
+HEADER: Title "RetailPulse Analytics", live KPI cards for:
+  - Total Sessions, Unique Users, Conversion Rate (3.87%), Drop-off Rate (12.7%), Avg Price
+
+CHART 1 — Funnel Chart (D3):
+  Show the user action funnel: view → click → wishlist → add_to_cart → purchase → drop
+  Show drop-off % between each stage. Use a horizontal funnel shape, not a bar chart.
+
+CHART 2 — Heatmap (D3):
+  Rows = 9 regions (US, UK, JP, IN, AU, CA, BR, DE, FR)
+  Columns = 8 categories (Electronics, Groceries, Sports, Accessories, Beauty, Home, Shoes, Apparel)
+  Color = conversion rate per cell. Tooltip shows exact rate.
+
+CHART 3 — Stacked Bar Chart (D3):
+  X-axis = traffic source (7 sources)
+  Stacked = device type (desktop/tablet/android/ios)
+  Y-axis = session count
+  Show which traffic sources bring which devices
+
+CHART 4 — Line Chart (D3):
+  X-axis = hour of day (0–23), aggregated from timestamp_utc
+  Y-axis = event volume
+  3 lines: total events, conversions, drop-offs
+  Show peak hours clearly
+
+SIDEBAR: Category filter (checkboxes) that updates all 4 charts simultaneously.
+
+Style: Dark theme (#0f1117 background), neon accent (#00d4ff), 
+sharp geometric design language, Rajdhani or similar industrial font from Google Fonts.
+No rounded corners. Grid-based layout.
+
+🔄 Prompt 3 — Funnel Drill-Down Interactivity
+Add cross-chart interactivity to the dashboard:
+
+1. When I click a region in the heatmap, all other charts filter to show only that region's data.
+   Show a "Region: JP" pill badge at the top that I can click to clear.
+
+2. When I click a bar segment in the stacked bar chart (e.g., "social + ios"), 
+   the funnel chart updates to show the funnel for only that traffic_source + device_type combo.
+
+3. When I hover over any funnel stage, highlight the corresponding rows in a mini 
+   data table below showing the top 5 products by interaction count at that stage.
+
+4. Add a "Reset All Filters" button that restores all charts to the full dataset.
+
+Use D3 brush selection or click events. Show loading spinners between transitions.
+
+🌗 Prompt 4 — Light/Dark Toggle + CSV Upload
+Add two features to the existing dashboard:
+
+FEATURE 1 — Light/Dark Mode Toggle
+  - Add a toggle switch in the top-right corner (sun/moon icon)
+  - Use CSS custom properties (--bg, --text, --accent, --card) for all colors
+  - Dark mode: #0f1117 background, #00d4ff accent
+  - Light mode: #f5f7fa background, #0066cc accent, #1a1a2e text
+  - Default to system preference using prefers-color-scheme
+  - Save preference to localStorage, restore on reload
+  - Animate the transition with a 200ms ease on all color properties
+
+FEATURE 2 — CSV File Upload
+  - Add a drag-and-drop zone in the top area: "Drop your retail CSV here"
+  - When a CSV is dropped, parse it with Papa Parse (CDN)
+  - Validate it has at minimum: user_action, category, region, is_conversion columns
+  - If valid: recompute all aggregates and update all 4 D3 charts with smooth transitions
+  - If invalid: show a red error toast with the missing column names
+  - Show a progress bar while parsing large files
+
+🤖 Prompt 5 — AI Analyst Sidebar (Gemini API)
+Add an AI analyst panel to the right sidebar of the dashboard.
+
+UI: A collapsible side panel (300px wide) with:
+  - Header: "Ask the Data" with a sparkle icon
+  - A text input field: "Ask anything about this retail data..."
+  - A send button and keyboard shortcut (Enter)
+  - Chat history showing Q&A pairs with timestamps
+  - A "Suggested Questions" section with 4 clickable chips:
+    * "Which region has the highest drop-off risk?"
+    * "What's the best traffic source for Electronics?"
+    * "Which device type converts best on mobile channel?"
+    * "What hour of day has the lowest conversion rate?"
+
+GEMINI INTEGRATION:
+  - When user asks a question, inject the current filtered dataset summary as context:
+    "You are analyzing retail behavior data. Current filter: [category]. 
+     Key stats: [conversion rate, top region, top action]. 
+     Answer concisely in 2-3 sentences."
+  - Use Gemini 1.5 Flash API (I will paste my API key)
+  - Stream the response token by token with a typing cursor effect
+  - If no API key: show "Add your Gemini API key in settings" prompt
+
+💡 Prompt 6 — Ask Gemini to Critique Its Own Work
+Look at the dashboard you just built. Play the role of a senior UX researcher 
+who is about to present this to a retail CMO.
+
+Give me 5 specific, harsh critiques:
+1. What story is NOT being told that a CMO would immediately ask about?
+2. What chart is misleading or could be misread?
+3. What is visually ugly or inconsistent?
+4. What interaction is confusing or missing?
+5. What metric is absent that would double the dashboard's business value?
+
+For each critique, give me the exact prompt I should run next to fix it.
+
+🎯 Prompt 7 — Hidden Patterns Discovery
+Based on this retail dataset structure, what patterns are most likely hiding that 
+standard bar charts won't show?
+
+Specifically consider:
+- Sequential patterns in user_action within sessions (do wishlist users convert more?)
+- Channel + device_type mismatches (e.g., "mobile" channel on "desktop" device — is this an error?)
+- Price sensitivity by region — do high-price products convert differently in JP vs IN vs BR?
+- The relationship between time_spent_sec and drop_off_flag — is there a "sweet spot" of engagement?
+- Traffic source quality: which source has lowest interaction_count but highest conversion?
